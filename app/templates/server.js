@@ -1,74 +1,26 @@
-const PROJECT_NAME = '<%= appName %>'
+var http = require('http') 
+var fs = require('fs') 
+var port = 3000
 
-// x..x..x..x..x..x..x..x..x..x..x..x..x..x..x..x..x..x..x..x..x..x
+var requestHandler = function(request, response) {  
+	var filename = request.url === '/' ? 'index.html' : process.cwd() + request.url
+	console.log('sending ' + filename)
+	var strm = fs.readFile(filename, (err,contents) => {
+		if (err) {
+			response.statusMessage = "what?! poor you we didn't found yoru file!"
+			response.statusCode = 404
+			response.end()
+		}
+		else response.end(contents) 
+	})
+}
 
+var server = http.createServer(requestHandler)
 
+server.listen(port, (err) => {  
+  if (err) {
+    return console.log('something bad happened', err)
+  }
 
-const bodyParser = require('body-parser');
-const express = require('express');
-const cookieParser = require('cookie-parser');
-const session = require('express-session');
-const passport = require('passport');
-const renderFile = require('ejs').renderFile
-
-// Load Configuration
-const appMiddleWare = require('./config/middleware.js')
-const appSecrets = require('./config/secrets.js')
-const appAuthentication = require('./config/auth.js')
-const connectToDB = require('./config/db-setup.js').connectToDB
-
-// Import Routers
-let indexRouter = require('./routes/indexRouter.js')
-let authRouter = require('./routes/authRouter.js')
-let apiRouter = require('./routes/apiRouter.js')
-
-// Load DB User Model (for appAuthentication configuration)
-let User = require('./db/schema.js').User
-
-
-// =========
-// RUN APP
-// =========
-const app = express()
-const PORT = process.env.PORT || 3000
-app.set('port', PORT)
-
-// =========
-// VIEW ENGINE
-// =========
-app.set('views', './dist/views');
-app.engine('html', renderFile)
-app.set('view engine', 'html');
-
-// =========
-// DATABASE
-// =========
-connectToDB(PROJECT_NAME)
-
-// =========
-// APPLICATION MIDDLEWARE 
-// =========
-app.use( express.static( __dirname + '/dist/assets') );
-app.use( bodyParser.json() );
-app.use( bodyParser.urlencoded() );
-app.use( cookieParser() );
-app.use( session({secret: appSecrets.sessionSecret }) );
-app.use( passport.initialize() );
-app.use( passport.session() );
-appAuthentication(User)
-app.use( appMiddleWare.cookifyUser )
-app.use( appMiddleWare.parseQuery )
-// 
-// =========
-// ROUTERS
-// =========
-
-app.use( '/', indexRouter )
-app.use( '/auth', authRouter )
-app.use( '/api', apiRouter )
-
-app.use(appMiddleWare.errorHandler);
-
-app.listen(PORT,function() {
-  console.log('\n\n===== listening for requests on port ' + PORT + ' =====\n\n')
+  console.log(`server is listening on port ${port}. visit localhost.com:3000 to view the latest version of your app!`)
 })

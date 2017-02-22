@@ -31,24 +31,17 @@ module.exports = generators.Base.extend({
 
 	writing: function() {
 
-		this.frameworkName 
 		mkdirp(this.appRoot, function(err,stuff) {
 			if (err) console.log(err)
 		})
 		this.directory(`${this.sourceRoot()}`,this.appRoot)
 
-		var paths = ['package.json','server.js','README.md','src/scripts/app.js']
-		paths.forEach(
-			(filepath)=>{
-				this.fs.copyTpl(
-					this.templatePath(filepath),
-					this.destinationPath(`${this.appRoot}/${filepath}`),
-					{
-						appName: this.appName
-					}
-				)
-			})
-
-
+		this.fs.copyTpl(
+			this.templatePath('server.js'),
+			this.destinationPath(`${this.appRoot}/server.js`),
+			{
+				appName: this.appName
+			}
+		)
 	}
 });
