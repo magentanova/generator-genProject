@@ -43,5 +43,12 @@ module.exports = generators.Base.extend({
 				appName: this.appName
 			}
 		)
+	},
+
+	end: function() {
+		this.log(`\n\n
+			******************************************************************************************************************
+			project setup complete! cd into the folder you just created, then check out the README.md for further explanation.
+			******************************************************************************************************************\n\n`)
 	}
 });
